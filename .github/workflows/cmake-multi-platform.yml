@@ -1,0 +1,75 @@
+移动到页面上的下一个交互元素*****************************************************************************************************************************************************************************************************
+使用
+控制+百万: 切换
+
+退出键:
+然后:
+突耳
+  pull_request:
+移动到页面上的下一个交互元素。
+
+按键移动焦点。或者，使用突耳:
+#1。<Windows，Release，默认runner映像上最新的MSVC编译器工具链，默认生成器>:
+#2。<Linux，Release，默认runner映像上的最新GCC编译器工具链，默认生成器>控制+空间
+
+切换:
+#3。<Linux，Release，default generator上的最新Clang编译器工具链
+#添加更多的构建类型（Release、Debug、RelWithDebInfo等）自定义build_type列表。
+
+操作系统：[ubuntu-最新]
+build_type: [退出键]
+c_compiler: [gcc, clang, cl]
+-操作系统:window
+      #
+c_compiler: 正斜杠
+cpp_compiler正斜杠控制+换挡+m:
+控制+百万
+c_compiler: 然后
+cpp_compiler: g++
+文件:
+搜索资料库开发人员
+突耳
+移动到页面上的下一个交互元素。
+使用
+#3.<Linux，Release，默认生成器上的最新 Clang you[#添加更多的构建类型（Release，Debug，RelWithDebInfo you you you build_type）]
+build_type: [操作系统：]
+c_compiler: [突耳使用操作系统：[ubuntu-you，window-you],按键移动焦点。或者，使用,退出键]
+            c_compiler: clang
+            cpp_compiler: clang++
+        exclude:
+          - os: windows-latest
+            c_compiler: gcc
+          - os: windows-latest
+            c_compiler: clang
+          - os: ubuntu-latest
+            c_compiler: cl
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set reusable strings
+      # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+    - name: Configure CMake
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -S ${{ github.workspace }}
+
+    - name: Build
+      # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
+      run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+
+    - name: Test
+      working-directory: ${{ steps.strings.outputs.build-output-dir }}
+      # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      run: ctest --build-config ${{ matrix.build_type }}
